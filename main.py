@@ -27,7 +27,6 @@ def voice(text):
     tts.save(filename)
     os.system("play /tmp/output.mp3 tempo 1.5 2>/dev/null")
 
-
 import openai
 
 init = [{"role": "system", "content": "You are a helpful assistant. Please provide short answers of one sentence maximum."}]
@@ -51,7 +50,7 @@ def discuss(text):
 
 import whisper
 model = whisper.load_model(sys.argv[1] if len(sys.argv) > 1 else "small")
-modelTiny = whisper.load_model("small")
+modelTiny = whisper.load_model("base.en")
 
 def ding():
     os.system("play ding.mp3 tempo 1.5 2>/dev/null")
@@ -62,7 +61,7 @@ def analyseSpeech(speech):
     if time.time() - valid < 20:
         transcribedText = model.transcribe(speech, language = "french")
     else:
-        transcribedText = modelTiny.transcribe(speech, language = "french")
+        transcribedText = modelTiny.transcribe(speech, language = "english")
     if transcribedText["text"] not in ["", " Sous-titres réalisés par la communauté d'Amara.org"]:
         print(transcribedText["text"])
         done = False
@@ -85,7 +84,7 @@ def analyseSpeech(speech):
         if not done:
             textIsOrdinateur = False
             try:
-                textIsOrdinateur = transcribedText["text"].split()[0][:10] == "ordinateur"
+                textIsOrdinateur = transcribedText["text"].split()[0].lower()[:7] == "compute"
             except:
                 pass
             if textIsOrdinateur:
@@ -113,7 +112,7 @@ while True:
     data = stream.read(chunk, exception_on_overflow = False)
     npdata = (np.array(array.array('h', data)).astype(np.float32) / 32768)
     is_speech = vad.is_speech(data, rate)
-    if is_speech and (time.time() - valid < 20 or len(speechFrames) < 30):
+    if is_speech and (time.time() - valid < 20 or len(speechFrames) < 15):
         speechFrames.append(npdata)
     else:
         if speechFrames != []:
