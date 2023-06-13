@@ -5,6 +5,8 @@ import os
 from gtts import gTTS
 import time
 import sys
+import subprocess
+import playsound
 
 import webrtcvad
 
@@ -25,7 +27,7 @@ def voice(text):
     tts = gTTS(text=text, lang = "fr")
     filename = "/tmp/output.mp3"
     tts.save(filename)
-    os.system("play /tmp/output.mp3 tempo 1.5 2>/dev/null")
+    playsound.playsound("/tmp/output.mp3")
 
 import openai
 
@@ -53,7 +55,7 @@ model = whisper.load_model(sys.argv[1] if len(sys.argv) > 1 else "small")
 modelTiny = whisper.load_model("base.en")
 
 def ding():
-    os.system("play ding.mp3 tempo 1.5 2>/dev/null")
+    playsound.playsound("ding.mp3")
 
 valid = 0
 def analyseSpeech(speech):
@@ -117,6 +119,8 @@ while True:
     else:
         if speechFrames != []:
             if len(speechFrames) > 10:
+                stream.stop_stream()
                 analyseSpeech(np.concatenate(speechFrames))
+                stream.start_stream()
             speechFrames = []
 
